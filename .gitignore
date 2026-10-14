@@ -1,0 +1,19 @@
+# Scraped data: big, can be re-downloaded, and not ours to republish
+data/raw/
+data/cache/
+
+# Built from raw data by our code, so anyone can regenerate it
+data/processed/
+
+# Secrets like API keys
+.env
+
+# Python's compiled bytecode (auto-generated when you run code)
+__pycache__/
+*.pyc
+
+# Your virtual environment (huge, and specific to your machine)
+.venv/
+
+# Jupyter's autosave copies of notebooks
+.ipynb_checkpoints/
