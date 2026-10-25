@@ -34,3 +34,15 @@
 ## 2026-10-17: Validate every download before caching it
 - **What:** `fetch()` takes an `expect` argument (for the CSVs, the exact header row) and refuses to cache a file that doesn't start with it.
 - **Why:** My first run cached the bot-check page because it came back with status 200. A status code isn't proof of good data, and a cache full of junk fails silently and instantly on every later run. Checking the header also catches the mirror renaming or reordering columns before it breaks the parser.
+
+## 2026-10-25: Clean tables keyed on UFCStats IDs, stored as Parquet
+- **What:** `src/parse/build_tables.py` builds four tables in `data/interim/`: `events` (key `event_id`), `fights` (`fight_id`), `fight_stats` (`fight_id`, `corner`, `round`) and `fighters` (`fighter_id`). Every ID is the hash at the end of the UFCStats URL. The build fails if a key is duplicated or a reference points to a missing row.
+- **Why:** Names aren't unique (there are two different fighters named Bruno Silva), so names can't be keys. Parquet keeps column types (dates, numbers, booleans), so nothing has to be re-parsed after loading.
+- **Alternatives considered:** CSV (loses types), SQLite (more setup than this project needs yet).
+
+## 2026-10-25: Data cleaning rules
+- **Duplicate fights:** some events were renamed and the mirror lists their fights under both names. Only fights whose event appears in the events table are kept, which removes the 25 duplicates and 2 fights from an event with no date.
+- **Fighter IDs:** fight results name fighters but don't link to them, so names are matched to IDs using both fighter files (they spell some names differently). 56 fights (0.6%) involve a name shared by two fighters or a name in neither file; their fighter ID is left blank rather than guessed.
+- **Missing values** (`--`) become NaN, never 0. A missing reach is unknown, not zero.
+- **Draws and no contests** have `a_won` = NaN, since they are neither a win nor a loss.
+- **Bout order:** the first-listed fighter won 64% of decided fights, because UFCStats tends to list the winner first. Fighter order must be randomized before modeling, or the model learns the listing order instead of the matchup.

@@ -3,6 +3,7 @@ data/raw/
 data/cache/
 
 # Built from raw data by our code, so anyone can regenerate it
+data/interim/
 data/processed/
 
 # Secrets like API keys
