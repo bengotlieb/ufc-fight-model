@@ -46,3 +46,13 @@
 - **Missing values** (`--`) become NaN, never 0. A missing reach is unknown, not zero.
 - **Draws and no contests** have `a_won` = NaN, since they are neither a win nor a loss.
 - **Bout order:** the first-listed fighter won 64% of decided fights, because UFCStats tends to list the winner first. Fighter order must be randomized before modeling, or the model learns the listing order instead of the matchup.
+
+## 2026-10-25: Historical odds from the Kaggle Ultimate UFC Dataset (for now)
+- **What:** `src/parse/join_odds.py` attaches moneylines from Kaggle's Ultimate UFC Dataset (mdabbert) to the fights table. Fights are matched on date (within a day) plus at least one fighter's name, and the match must be unique in both directions. 6,910 of 6,924 odds rows match, and the two sources agree on the winner 99.97% of the time.
+- **Why:** There's no free, maintained source of historical closing lines, and this dataset covers 2010 through March 2026 and has been used in published UFC betting research.
+- **Limitations:**
+  - It isn't documented whether these are closing lines from a single book. The median overround is 3.7% and some are under 2%, lower than one book's typical vig, which suggests best-available prices across books. That would make the market look sharper and our edge look smaller. Treat results against it as approximate.
+  - No odds after 2026-03-28, and coverage drops to 75 to 83% of fights in 2023 and 2024.
+  - Only the odds columns are used. The file's precomputed fighter stats have unclear timing and could leak future information.
+- **Next step:** Replace or check it against BestFightOdds opening and closing lines before the betting backtest, and use a live odds source for weekly picks.
+- **Alternatives considered:** Scraping BestFightOdds now (more work, may block scripts) and paid odds APIs (cost).
